@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { useProductStore } from "@/store/product";
 import productApi from "@/api/product";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import { storeToRefs } from "pinia";
+
+const {
+  params: { id },
+} = useRoute();
+
+console.log(id);
 
 const router = useRouter();
 const productStore = useProductStore();
-const product = ref({
-  name: "",
-  price: 0,
-  description: "",
-  image: "",
-  category: "",
-  stock: 0,
-});
+
+productStore.getProduct(id);
+const product = storeToRefs(productStore).product;
 
 const uploadImage = async (e: Event) => {
   const target = e.target as HTMLInputElement;
@@ -22,19 +23,12 @@ const uploadImage = async (e: Event) => {
 };
 
 const saveProduct = async () => {
-  const result = await productStore.createProduct(product.value);
+  const result = await productStore.updateProduct(product.value, id);
   if (result) {
-    product.value = {
-      name: "",
-      price: 0,
-      description: "",
-      image: "",
-      category: "",
-      stock: 0,
-    };
+    productStore.resetProduct();
     await router.push("/products");
   } else {
-    alert("상품 등록에 실패하였습니다.");
+    alert("상품 수정에 실패하였습니다.");
   }
 };
 
@@ -69,6 +63,7 @@ const goProductList = async () => {
           accept="image/*"
           @change="uploadImage"
         ></v-file-input>
+        <img class="w-25" :src="product.image" />
       </v-form>
       <v-card-text class="text-right">
         <v-btn color="success" @click="saveProduct"> 저장 </v-btn>

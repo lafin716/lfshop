@@ -4,9 +4,11 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   limit,
   query,
+  updateDoc,
 } from "firebase/firestore";
 import { Product } from "@/types/schema/product";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -19,8 +21,18 @@ export default {
     return docs;
   },
 
+  async getProduct(id: string) {
+    const data = getDoc(doc(db, "products", id));
+    return data;
+  },
+
   async createProduct(product: Product) {
     await addDoc(collection(db, "products"), product);
+  },
+
+  async updateProduct(product: Product | any, id: string) {
+    const result = await updateDoc(doc(db, "products", id), product);
+    return result;
   },
 
   async removeProduct(id: string) {

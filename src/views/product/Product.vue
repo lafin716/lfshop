@@ -46,14 +46,26 @@ const remove = async (id: string) => {
         <tbody>
           <tr v-for="item in products" :key="item.name">
             <td><img class="w-50" :src="item.image" /></td>
-            <td>{{ item.name }}</td>
+            <td>
+              <router-link :to="`/products/${item.id}`">{{
+                item.name
+              }}</router-link>
+            </td>
             <td>{{ item.price }}</td>
             <td>{{ item.stock }}</td>
             <td>
-              <v-btn color="primary" to="/products/edit" class="mr-2"
+              <v-btn
+                color="primary"
+                size="small"
+                :to="`/products/${item.id}`"
+                class="mr-2"
                 >수정</v-btn
               >
-              <v-btn color="error" v-if="item.id" @click="remove(item.id!)"
+              <v-btn
+                color="error"
+                size="small"
+                v-if="item.id"
+                @click="remove(item.id!)"
                 >삭제</v-btn
               >
             </td>
@@ -64,4 +76,10 @@ const remove = async (id: string) => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.link {
+  color: #1976d2;
+  text-decoration: none;
+  cursor: pointer;
+}
+</style>
