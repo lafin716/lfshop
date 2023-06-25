@@ -1,8 +1,14 @@
 <script lang="ts" setup>
 import { useAuthStore } from "@/store/auth";
 import { computed } from "vue";
+import menuData from "@/data/menu.data";
+import { Icon } from "@iconify/vue";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
+const drawer = ref(false);
 const authStore = useAuthStore();
+const router = useRouter();
 
 const initialName = computed(() => {
   const name = authStore.user?.email ?? "";
@@ -18,14 +24,34 @@ const userEmail = computed(() => {
 });
 
 const logout = async () => {
-  await authStore.logout();
+  const result = await authStore.logout();
+  if (result) {
+    await router.push("/auth/signin");
+  } else {
+    alert("로그아웃에 실패하였습니다.");
+  }
 };
 </script>
 <template>
+  <v-navigation-drawer v-model="drawer" permanent>
+    <v-list>
+      <v-list-item
+        v-for="item in menuData"
+        :key="item.title"
+        :to="item.to"
+        link
+      >
+        <v-list-item-content class="menu-item">
+          <Icon class="menu-icon" :icon="item.icon"></Icon>
+          <span>{{ item.title }}</span>
+        </v-list-item-content>
+      </v-list-item>
+    </v-list>
+  </v-navigation-drawer>
   <v-app-bar color="info">
     <slot name="prepend">
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
-    </slot>
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon
+    ></slot>
     <v-app-bar-title> 쇼핑몰관리자 </v-app-bar-title>
     <slot name="append">
       <v-menu min-width="200px" rounded>
@@ -56,3 +82,15 @@ const logout = async () => {
     </slot>
   </v-app-bar>
 </template>
+<style scoped>
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  font-size: 11pt;
+}
+
+.menu-icon {
+  margin-right: 10px;
+}
+</style>

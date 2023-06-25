@@ -21,6 +21,34 @@ export const useAuthStore = defineStore("auth", () => {
     user.value = u;
   });
 
+  function checkAuth() {
+    try {
+      const storage = localStorage.getItem("user");
+      if (storage) {
+        const user = JSON.parse(storage);
+        if (user) {
+          isLogin.value = true;
+          user.value = user;
+          return true;
+        }
+      }
+
+      return false;
+    } catch (error: any) {
+      console.log(error);
+      alert(error.message);
+      return false;
+    }
+  }
+
+  function saveUser(user: User) {
+    localStorage.setItem("user", JSON.stringify(user));
+  }
+
+  function removeUser() {
+    localStorage.removeItem("user");
+  }
+
   async function signup(email: string, password: string) {
     try {
       const result = await createUserWithEmailAndPassword(
@@ -28,10 +56,17 @@ export const useAuthStore = defineStore("auth", () => {
         email,
         password
       );
-      console.log(result);
+
+      if (result.user) {
+        saveUser(result.user);
+        return true;
+      }
+
+      return false;
     } catch (error: FirebaseError | any) {
-      console.log(error.code);
+      console.log(error);
       alert(error.message);
+      return false;
     }
   }
 
@@ -39,9 +74,16 @@ export const useAuthStore = defineStore("auth", () => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
       console.log(result);
+      if (result.user) {
+        saveUser(result.user);
+        return true;
+      }
+
+      return false;
     } catch (error: FirebaseError | any) {
-      console.log(error.code);
+      console.log(error);
       alert(error.message);
+      return false;
     }
   }
 
@@ -50,14 +92,23 @@ export const useAuthStore = defineStore("auth", () => {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       console.log(result);
+      if (result.user) {
+        saveUser(result.user);
+        return true;
+      }
+
+      return false;
     } catch (error: FirebaseError | any) {
-      console.log(error.code);
+      console.log(error);
       alert(error.message);
+      return false;
     }
   }
 
   async function logout() {
     await signOut(auth);
+    removeUser();
+    return true;
   }
 
   return {
@@ -67,5 +118,6 @@ export const useAuthStore = defineStore("auth", () => {
     login,
     loginWithGoogle,
     logout,
+    checkAuth,
   };
 });

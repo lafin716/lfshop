@@ -4,33 +4,33 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import { reactive, watch } from "vue";
 
-const authStore = useAuthStore();
 const router = useRouter();
-
+const authStore = useAuthStore();
 const formData = reactive({
   email: "",
   password: "",
 });
-
-watch(
-  () => authStore.user,
-  (user) => {
-    if (user) {
-      router.push("/");
-    }
-  }
-);
 
 const login = async () => {
   if (!formData.email || !formData.password) {
     return;
   }
 
-  await authStore.login(formData.email, formData.password);
+  const result = await authStore.login(formData.email, formData.password);
+  if (!result) {
+    alert("로그인에 실패하였습니다.");
+  } else {
+    router.push("/");
+  }
 };
 
 const googleLogin = async () => {
-  await authStore.loginWithGoogle();
+  const result = await authStore.loginWithGoogle();
+  if (!result) {
+    alert("로그인에 실패하였습니다.");
+  } else {
+    router.push("/");
+  }
 };
 </script>
 <template>

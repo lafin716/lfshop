@@ -13,21 +13,17 @@ const formData = reactive({
   passwordConfirm: "",
 });
 
-watch(
-  () => authStore.user,
-  (user) => {
-    if (user) {
-      router.push("/");
-    }
-  }
-);
-
 const signup = async () => {
   if (!formData.email || !formData.password) {
     return;
   }
 
-  await authStore.signup(formData.email, formData.password);
+  const result = await authStore.signup(formData.email, formData.password);
+  if (!result) {
+    alert("회원가입에 실패하였습니다.");
+  } else {
+    await router.push("/auth/signin");
+  }
 };
 </script>
 <template>
